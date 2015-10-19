@@ -124,11 +124,17 @@ abstract class FileCache extends CacheProvider
      */
     protected function getFilename($id)
     {
+        $hash = hash('sha256', $id);
+        // Remove everything except 0-9
+        $cacheDir = substr(preg_replace('/[^0-9]/', '', $hash), 0, 3);
+        // Ensure 3 numbers
+        $cacheDir = str_pad($cacheDir, 3, '0', STR_PAD_RIGHT);
+        
         return $this->directory
             . DIRECTORY_SEPARATOR
-            . implode(str_split(hash('sha256', $id), 2), DIRECTORY_SEPARATOR)
+            . implode(str_split($cacheDir, 3), DIRECTORY_SEPARATOR)
             . DIRECTORY_SEPARATOR
-            . preg_replace($this->disallowedCharacterPatterns, $this->replacementCharacters, $id)
+            . preg_replace($this->disallowedCharacterPatterns, $this->replacementCharacters, $id).'_'.$hash
             . $this->extension;
     }
 
